@@ -13,6 +13,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/rs/xid"
+	"github.com/rs/zerolog/log"
 )
 
 // uuidPrefixer is a io.Writer that prefixes every line with UUID
@@ -78,6 +79,7 @@ func isQuiet(cr *CmdRequest) (bool, error) {
 		start := shed.Next(now.Add(-dur))
 		end := start.Add(dur)
 		if now.After(start) && end.After(now) {
+			log.Debug().Msg("ignore errors due to quiet time: " + startStr + ":" + durStr)
 			return true, nil
 		}
 	}
