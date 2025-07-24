@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 	"github.com/rs/xid"
 )
 
@@ -67,7 +67,8 @@ func isQuiet(cr *CmdRequest) (bool, error) {
 		startStr := ts[i]
 		durStr := ts[i+1]
 		now := time.Now()
-		shed, err := cron.Parse(startStr)
+		parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+		shed, err := parser.Parse(startStr)
 		if err != nil {
 			return false, fmt.Errorf("unable to parse cron time: %s", err)
 		}
