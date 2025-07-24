@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -89,7 +88,7 @@ func isQuiet(cr *CmdRequest) (bool, error) {
 func handleExistingLockfile(cr *CmdRequest) (bool, error) {
 	_, statErr := os.Stat(cr.Lockfile)
 	if statErr == nil {
-		pidBytes, err := ioutil.ReadFile(cr.Lockfile)
+		pidBytes, err := os.ReadFile(cr.Lockfile)
 		if err != nil {
 			return false, fmt.Errorf("unable to read lockfile: %s", err)
 		}

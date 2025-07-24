@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -190,7 +189,7 @@ func noop() GuardFunc {
 }
 
 func (mc mockCase) validate(c *check.C, gf func(GuardFunc) GuardFunc, overwrites ...interface{}) {
-	f, _ := ioutil.TempFile("", "")
+	f, _ := os.CreateTemp("", "")
 	defer f.Close()
 	defer os.Remove(f.Name())
 
