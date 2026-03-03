@@ -1,0 +1,57 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: true
+      - run: go test -v -race ./...
+
+  release:
+    name: Build Binaries and Release
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Build Multi-Platform Binaries
+        run: |
+          # Linux
+          GOOS=linux GOARCH=amd64 go build -o cronguard-linux-amd64
+          GOOS=linux GOARCH=arm64 go build -o cronguard-linux-arm64
+          # macOS
+          GOOS=darwin GOARCH=amd64 go build -o cronguard-darwin-amd64
+          GOOS=darwin GOARCH=arm64 go build -o cronguard-darwin-arm64
+          # Windows
+          GOOS=windows GOARCH=amd64 go build -o cronguard-windows-amd64.exe
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            cronguard-linux-amd64
+            cronguard-linux-arm64
+            cronguard-darwin-amd64
+            cronguard-darwin-arm64
+            cronguard-windows-amd64.exe
+          generate_release_notes: true
