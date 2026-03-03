@@ -1,11 +1,11 @@
 module github.com/bitsbeats/cronguard
 
-go 1.17
+go 1.24
 
 require (
 	github.com/getsentry/sentry-go v0.13.0
 	github.com/google/go-cmp v0.5.7
-	github.com/robfig/cron v1.2.0
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/rs/xid v1.3.0
 	github.com/rs/zerolog v1.26.1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c

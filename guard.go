@@ -114,6 +114,7 @@ func chained(final func() GuardFunc, middlewares ...func(GuardFunc) GuardFunc) (
 // runner executes the guarded command
 func runner() GuardFunc {
 	return func(ctx context.Context, cr *CmdRequest) (err error) {
+		log.Debug().Msg("executing: " + cr.Command)
 		cmd := exec.CommandContext(ctx, "bash", "-c", cr.Command)
 		cmd.Stdout = cr.Status.Stdout
 		cmd.Stderr = cr.Status.Stderr

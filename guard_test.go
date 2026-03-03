@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 	"testing"
@@ -21,7 +21,7 @@ type (
 
 func guard(t *testing.T, additionalArgs []string, command string, want string) (err error) {
 	fmt.Printf("running %s\n", command)
-	tempFile, err := ioutil.TempFile("", "guard")
+	tempFile, err := os.CreateTemp("", "guard")
 	if err != nil {
 		return fmt.Errorf("unable to create tmp file (%s): %s", tempFile.Name(), err)
 	}
@@ -37,7 +37,7 @@ func guard(t *testing.T, additionalArgs []string, command string, want string) (
 	os.Args = append(os.Args, command)
 	main()
 
-	got, err := ioutil.ReadAll(tempFile)
+	got, err := io.ReadAll(tempFile)
 	if err != nil {
 		return
 	}

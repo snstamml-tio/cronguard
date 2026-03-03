@@ -5,15 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 	"syscall"
 	"time"
 
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 	"github.com/rs/xid"
+	"github.com/rs/zerolog/log"
 )
 
 // uuidPrefixer is a io.Writer that prefixes every line with UUID
@@ -67,7 +67,8 @@ func isQuiet(cr *CmdRequest) (bool, error) {
 		startStr := ts[i]
 		durStr := ts[i+1]
 		now := time.Now()
-		shed, err := cron.Parse(startStr)
+		parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+		shed, err := parser.Parse(startStr)
 		if err != nil {
 			return false, fmt.Errorf("unable to parse cron time: %s", err)
 		}
@@ -78,6 +79,7 @@ func isQuiet(cr *CmdRequest) (bool, error) {
 		start := shed.Next(now.Add(-dur))
 		end := start.Add(dur)
 		if now.After(start) && end.After(now) {
+			log.Debug().Msg("ignore errors due to quiet time: " + startStr + ":" + durStr)
 			return true, nil
 		}
 	}
@@ -88,7 +90,7 @@ func isQuiet(cr *CmdRequest) (bool, error) {
 func handleExistingLockfile(cr *CmdRequest) (bool, error) {
 	_, statErr := os.Stat(cr.Lockfile)
 	if statErr == nil {
-		pidBytes, err := ioutil.ReadFile(cr.Lockfile)
+		pidBytes, err := os.ReadFile(cr.Lockfile)
 		if err != nil {
 			return false, fmt.Errorf("unable to read lockfile: %s", err)
 		}
